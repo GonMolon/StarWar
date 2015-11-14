@@ -1,0 +1,5 @@
+Viewer
+*.o
+deployment.pri
+*.pro.user
+*.exe
