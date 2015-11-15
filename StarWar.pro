@@ -12,7 +12,8 @@ SOURCES += \
     Main.cc \
     Player.cc \
     Registry.cc \
-    Utils.cc
+    Utils.cc \
+    AIEsUnaTrampa.cc
 
 include(deployment.pri)
 qtcAddDeployment()

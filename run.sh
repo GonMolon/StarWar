@@ -3,15 +3,13 @@
 # Exit immediately if a command exits with a non-zero status.
 set -e
 
-mingw32-make.exe all
-
 # Take an optional argument: the basename of the game file.
-game="default"          # default game
+game="maze3"          # default game
 if [ "$#" -ge 1 ]; then
   game=$1
 fi
 
-Player1=Demo
+Player1=EsUnaTrampa
 Player2=Demo
 Player3=Demo
 Player4=Demo

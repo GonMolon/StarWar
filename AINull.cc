@@ -11,11 +11,7 @@ using namespace std;
 #define PLAYER_NAME Null
 
 
-
-
-
 struct PLAYER_NAME : public Player {
-
 
     /**
      * Factory: returns a new instance of this class.
@@ -24,12 +20,10 @@ struct PLAYER_NAME : public Player {
     static Player* factory () {
         return new PLAYER_NAME;
     }
-    
 
     /**
      * Attributes for your player can be defined here.
      */     
-
 
     /**
      * Play method.
@@ -38,11 +32,10 @@ struct PLAYER_NAME : public Player {
      * You have to read the board here to place your actions
      * for this round.
      *
-     */     
-    virtual void play () {
-    }
+	 */
+	virtual void play () {
 
-    
+	}
 };
 
 
