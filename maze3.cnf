@@ -2,7 +2,7 @@ starwar       	  v1
 secgame            ?
 seed               ?
 nb_players    	   4
-nb_rnds       	 300
+nb_rnds       	 1000
 nb_rows       	  19
 nb_uni_cols   	  67
 nb_win_cols   	  40

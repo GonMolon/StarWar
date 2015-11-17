@@ -1,7 +1,7 @@
 Action.o: Action.cc Action.hh Utils.hh Board.hh
-AIDemo.o: AIDemo.cc Player.hh Utils.hh Board.hh Action.hh Registry.hh
-AIEsUnaTrampa.o: AIEsUnaTrampa.cc Player.hh Utils.hh Board.hh Action.hh \
+AIClonRandom.o: AIClonRandom.cc Player.hh Utils.hh Board.hh Action.hh \
  Registry.hh
+AIDemo.o: AIDemo.cc Player.hh Utils.hh Board.hh Action.hh Registry.hh
 AINull.o: AINull.cc Player.hh Utils.hh Board.hh Action.hh Registry.hh
 Board.o: Board.cc Board.hh Utils.hh Action.hh
 Game.o: Game.cc Game.hh Utils.hh Board.hh Action.hh Player.hh Registry.hh

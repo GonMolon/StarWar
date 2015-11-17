@@ -3,7 +3,7 @@
 
 using namespace std;
 
-#define PLAYER_NAME EsUnaTrampa
+#define PLAYER_NAME ClonRandom
 
 struct PLAYER_NAME : public Player {
 
@@ -71,6 +71,12 @@ struct PLAYER_NAME : public Player {
 
 	Targets targets;
 
+	//TODO estructura de datos para almacenar naves enemigas
+
+	///
+	/// \brief play	asigna un objetivo a cada nave al principio y mueve a cada nave según su objetivo. También actualiza
+	/// la posición de las naves enemigas en función de sus antiguas posiciones para no tener que hacer una búsqueda en cada turno.
+	///
 	virtual void play () {
 		if(round() == 0) {
 			targets = Targets(number_starships_per_player(), begin(me()));
@@ -81,7 +87,9 @@ struct PLAYER_NAME : public Player {
 		for(Starship_Id id = begin(me()); id != end(me()); ++id) {
 			Starship s = starship(id);
 			refresh_target(s);
+			//TODO implementar refresh_target
 		}
+		//TODO implementar update enemigos
 	}
 };
 

@@ -13,7 +13,7 @@ SOURCES += \
     Player.cc \
     Registry.cc \
     Utils.cc \
-    AIEsUnaTrampa.cc
+    AIClonRandom.cc
 
 include(deployment.pri)
 qtcAddDeployment()

@@ -65,9 +65,9 @@ struct PLAYER_NAME : public Player {
 				  FAST_UP, FAST, FAST_DOWN};
 		}
 		// For each of my starships
-		for (Starship_Id sid = begin(me()); sid != end(me()); ++sid) {
+		for(Starship_Id sid = begin(me()); sid != end(me()); ++sid) {
 			Starship s = starship(sid);
-			if (s.alive) { // if the starship is alive and
+			if(s.alive) { // if the starship is alive and
 				Pos p = s.pos;
 				// has missiles and there is an enemy in the cell ahead, shoot
 				Cell ahead = cell(p + DEFAULT);
@@ -78,9 +78,9 @@ struct PLAYER_NAME : public Player {
 					bool success = move_to_bonus(s);
 					// otherwise take a random direction if current row is not 0
 					// nor number_rows()-1.
-					if (not success) {
+					if(not success) {
 						int row = first(s.pos);
-						if (row != 0 and row != number_rows()-1) {
+						if(row != 0 and row != number_rows()-1) {
 							Dir d = all_dirs[randomize(0, all_dirs.size()-1)];
 							if (within_window(s.pos + d, round()+1)) {
 								move(sid, d);

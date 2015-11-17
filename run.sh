@@ -9,9 +9,9 @@ if [ "$#" -ge 1 ]; then
   game=$1
 fi
 
-Player1=EsUnaTrampa
-Player2=Demo
-Player3=Demo
+Player1=ClonRandom
+Player2=Dummy
+Player3=Dummy
 Player4=Demo
 
 VIEWER_PATH=Viewer
