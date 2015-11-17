@@ -103,9 +103,8 @@ struct PLAYER_NAME : public Player {
 		int r = 0;
 		queue<Pos> positions;
 		positions.push(s.pos);
-		set<int> visited();
-		Pos p = s.pos;
-		visited.insert(r);
+		set<Pos> visited;
+		visited.insert(s.pos);
 		while(positions.empty()) {
 
 		}
