@@ -34,7 +34,6 @@ struct PLAYER_NAME : public Player {
      *
 	 */
 	virtual void play () {
-
 	}
 };
 

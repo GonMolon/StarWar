@@ -1,5 +1,6 @@
 #include "Player.hh"
 #include <vector>
+#include <set>
 
 using namespace std;
 
@@ -53,8 +54,62 @@ struct PLAYER_NAME : public Player {
 	/// \param s
 	/// \return devuelve el objetivo seleccionado
 	///
+ /*
+	int minimum_dist(matrix &map, pair<int, int> pos, int n, int m, int tesoros) {
+		if(tesoros == 0) {
+			return -1;
+		}
+		int dist = 0;
+		queue<pair<int, int> > q;
+		q.push(pos);
+		map[pos.first][pos.second].second = true;
+		int current_level = 1;
+		int next_level = 0;
+		while(!q.empty()) {
+			pos = q.front();
+			if(map[pos.first][pos.second].first == 't') {
+				return dist;
+			}
+			q.pop();
+			for(int i = pos.first-1; i <= pos.first+1; ++i) {
+				if(i >= 0 && i < n) {
+					for(int j = pos.second-(i == pos.first); j <= pos.second+(i == pos.first); ++j) {
+						if(j >= 0 && j < m) {
+							if(!map[i][j].second && map[i][j].first != 'X') {
+								map[i][j].second = true;
+								pair<int, int> pos_seg;
+								pos_seg.first = i;
+								pos_seg.second = j;
+								q.push(pos_seg);
+								++next_level;
+							}
+						}
+					}
+				}
+			}
+			--current_level;
+			if(current_level == 0) {
+				current_level = next_level;
+				next_level = 0;
+				++dist;
+			}
+		}
+		return -1;
+	}
+	*/
+
 	Target choose_target(const Starship &s) {
 		Target t;
+		int r = 0;
+		queue<Pos> positions;
+		positions.push(s.pos);
+		set<int> visited();
+		Pos p = s.pos;
+		visited.insert(r);
+		while(positions.empty()) {
+
+		}
+
 		return t;
 	}
 
