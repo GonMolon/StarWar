@@ -97,13 +97,22 @@ struct PLAYER_NAME : public Player {
 		return -1;
 	}
 	*/
+	struct compare {
+		bool operator() (const Pos& p1, const Pos& p2) const{
+			if(first(p1) != first(p2)) {
+				return first(p1) < first(p2);
+			} else {
+				return second(p1) < second(p2);
+			}
+		}
+	};
 
 	Target choose_target(const Starship &s) {
 		Target t;
 		int r = 0;
 		queue<Pos> positions;
 		positions.push(s.pos);
-		set<Pos> visited;
+		set<Pos, compare> visited = set<Pos, compare>();
 		visited.insert(s.pos);
 		while(positions.empty()) {
 
@@ -114,7 +123,7 @@ struct PLAYER_NAME : public Player {
 
 	///
 	/// \brief refresh_target comprueba que el objetivo sigue siendo accesible, existe y merece la pena, si no, escoge otro.
-	/// Además, si en medio de un objetivo se da cuenta que puede conseguir algo de camino actualiza su recorrido.
+	/// Adem?s, si en medio de un objetivo se da cuenta que puede conseguir algo de camino actualiza su recorrido.
 	/// \param s
 	///
 	void refresh_target(const Starship &s) {
@@ -128,8 +137,8 @@ struct PLAYER_NAME : public Player {
 	//TODO estructura de datos para almacenar naves enemigas
 
 	///
-	/// \brief play	asigna un objetivo a cada nave al principio y mueve a cada nave según su objetivo. También actualiza
-	/// la posición de las naves enemigas en función de sus antiguas posiciones para no tener que hacer una búsqueda en cada turno.
+	/// \brief play    asigna un objetivo a cada nave al principio y mueve a cada nave seg?n su objetivo. También actualiza
+	/// la posición de las naves enemigas en función de sus antiguas posiciones para no tener que hacer una b?squeda en cada turno.
 	///
 	virtual void play () {
 		if(round() == 0) {
@@ -148,4 +157,3 @@ struct PLAYER_NAME : public Player {
 };
 
 RegisterPlayer(PLAYER_NAME);
-
