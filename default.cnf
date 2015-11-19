@@ -7,7 +7,7 @@ nb_rows       	  15
 nb_uni_cols   	  60
 nb_win_cols   	  31
 nb_ships_x_player  2
-nb_rnds_regen 	  50
+nb_rnds_regen 	  10
 nb_miss_bonuses   10
 nb_point_bonuses  10
 bonus_miss         5

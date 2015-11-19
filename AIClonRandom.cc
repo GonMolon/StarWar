@@ -20,6 +20,7 @@ struct PLAYER_NAME : public Player {
 		queue<Pos> ruta;
 		Pos p;
 		int misiles_nec;
+		int rounds_nec;
 		CType type;
 	};
 
@@ -36,12 +37,8 @@ struct PLAYER_NAME : public Player {
 			v = vector<Target>(size);
 		}
 
-		Target operator[](Starship_Id id) {
+		Target& operator[](Starship_Id id) {
 			return v[id-offset];
-		}
-
-		void set_target(Starship_Id id, const Target &t) {
-			v[id-offset] = t;
 		}
 
 	private:
@@ -49,54 +46,8 @@ struct PLAYER_NAME : public Player {
 		int offset = 0;
 	};
 
-	///
-	/// \brief choose_target sirve para escoger un objetivo y un recorrido para
-	/// \param s
-	/// \return devuelve el objetivo seleccionado
-	///
- /*
-	int minimum_dist(matrix &map, pair<int, int> pos, int n, int m, int tesoros) {
-		if(tesoros == 0) {
-			return -1;
-		}
-		int dist = 0;
-		queue<pair<int, int> > q;
-		q.push(pos);
-		map[pos.first][pos.second].second = true;
-		int current_level = 1;
-		int next_level = 0;
-		while(!q.empty()) {
-			pos = q.front();
-			if(map[pos.first][pos.second].first == 't') {
-				return dist;
-			}
-			q.pop();
-			for(int i = pos.first-1; i <= pos.first+1; ++i) {
-				if(i >= 0 && i < n) {
-					for(int j = pos.second-(i == pos.first); j <= pos.second+(i == pos.first); ++j) {
-						if(j >= 0 && j < m) {
-							if(!map[i][j].second && map[i][j].first != 'X') {
-								map[i][j].second = true;
-								pair<int, int> pos_seg;
-								pos_seg.first = i;
-								pos_seg.second = j;
-								q.push(pos_seg);
-								++next_level;
-							}
-						}
-					}
-				}
-			}
-			--current_level;
-			if(current_level == 0) {
-				current_level = next_level;
-				next_level = 0;
-				++dist;
-			}
-		}
-		return -1;
-	}
-	*/
+	vector<Dir> all_dirs;
+
 	struct compare {
 		bool operator() (const Pos& p1, const Pos& p2) const{
 			if(first(p1) != first(p2)) {
@@ -107,17 +58,91 @@ struct PLAYER_NAME : public Player {
 		}
 	};
 
-	Target choose_target(const Starship &s) {
-		Target t;
-		int r = 0;
-		queue<Pos> positions;
-		positions.push(s.pos);
-		set<Pos, compare> visited = set<Pos, compare>();
-		visited.insert(s.pos);
-		while(positions.empty()) {
+	bool cell_ok(const Pos &p) {
+		Cell c = cell(p);
+		return c.type == EMPTY || c.type == POINT_BONUS || c.type == MISSILE_BONUS;
+	}
 
+	int check_movement(const Pos &p, const Dir &d) {
+		if(d == DEFAULT) {
+			return true;
+		} else if(!cell_ok(p+d)) {
+			return false;
+		} else if(d == FAST) {
+			return cell_ok(p+DEFAULT);
+		} else if(d == FAST_UP) {
+			return check_movement(p, UP) && check_movement(p, FAST);
+		} else if(d == FAST_DOWN) {
+			return check_movement(p, DOWN) && check_movement(p, FAST);
+		} else if(d == UP) {
+			return cell_ok(p+UP) && cell_ok(p+DEFAULT);
+		} else if(d == DOWN) {
+			return cell_ok(p+DOWN) && cell_ok(p+DEFAULT);
+		} else {
+			return true;
 		}
+	}
 
+	///
+	/// \brief choose_target sirve para escoger un objetivo y un recorrido para
+	/// \param s
+	/// \return devuelve el objetivo seleccionado
+	///
+
+	#define MAX_LEVEL 15
+	#define N_TARGETS 3
+	bool scan_target(const Starship &s, Target &t, CType type) {
+		vector<Target> v = vector<Target>(N_TARGETS);
+		set<Pos, compare> visited = set<Pos, compare>();
+		queue<Pos> q;
+		q.push(s.pos);
+		visited.insert(s.pos);
+		int r = 0;
+		int i = 0;
+		int current_level = 1;
+		int next_level = 0;
+		Pos act;
+		while(!q.empty() && i < N_TARGETS && r <= MAX_LEVEL) {
+			act = q.front();
+			if(cell(act).type == type) {
+				v[i].p = act;
+				v[i].rounds_nec = r;
+				v[i].type = type;
+				//v[i].type = cell(act).type;
+				++i;
+			}
+			for(int j = 0; j < all_dirs.size()-1; ++j) {
+				Pos new_pos = act+all_dirs[j];
+				if(visited.find(new_pos) == visited.end()
+						&& within_window(new_pos, round()+r)
+						&& check_movement(act, all_dirs[j])) {
+					visited.insert(new_pos);
+					q.push(new_pos);
+					++next_level;
+				}
+			}
+			q.pop();
+			--current_level;
+			if(current_level == 0) {
+				current_level = next_level;
+				next_level = 0;
+				++r;
+			}
+		}
+		if(i != 0) {
+			t = v[0];
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	Target get_target(const Starship &s) {
+		Target t;
+		scan_target(s, t, POINT_BONUS);
+		cerr << '(' << first(t.p) << " - " << second(t.p) << ')' << endl;
+		cerr << t.type << endl;
+		cerr << t.misiles_nec << endl;
 		return t;
 	}
 
@@ -127,8 +152,8 @@ struct PLAYER_NAME : public Player {
 	/// \param s
 	///
 	void refresh_target(const Starship &s) {
-		if(cell(targets[s.sid].p).type == targets[s.sid].type) {
-			targets.set_target(s.sid, choose_target(s));
+		if(cell(targets[s.sid].p).type != targets[s.sid].type || !within_window(targets[s.sid].p, round())) {
+			targets[s.sid] = get_target(s);
 		}
 	}
 
@@ -142,15 +167,19 @@ struct PLAYER_NAME : public Player {
 	///
 	virtual void play () {
 		if(round() == 0) {
+			all_dirs = {FAST, FAST_UP, FAST_DOWN, DEFAULT, UP, DOWN, SLOW_UP, SLOW_DOWN, SLOW};
 			targets = Targets(number_starships_per_player(), begin(me()));
 			for(Starship_Id id = begin(me()); id != end(me()); ++id) {
-				targets.set_target(id, choose_target(starship(id)));
+				targets[id] = get_target(starship(id));
+				while(true);
 			}
 		}
 		for(Starship_Id id = begin(me()); id != end(me()); ++id) {
 			Starship s = starship(id);
-			refresh_target(s);
-			//TODO implementar refresh_target
+			if(s.alive) {
+				refresh_target(s);
+				//TODO implementar refresh_target
+			}
 		}
 		//TODO implementar update enemigos
 	}
