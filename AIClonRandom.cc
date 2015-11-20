@@ -63,7 +63,7 @@ struct PLAYER_NAME : public Player {
 		return c.type == EMPTY || c.type == POINT_BONUS || c.type == MISSILE_BONUS;
 	}
 
-	int check_movement(const Pos &p, const Dir &d) {
+    bool check_movement(const Pos &p, const Dir &d) {
 		if(d == DEFAULT) {
 			return true;
 		} else if(!cell_ok(p+d)) {
