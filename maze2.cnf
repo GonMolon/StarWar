@@ -42,7 +42,7 @@ rnd 0
 
 starships
 sid     row     column  nb_miss alive   time
-0  	01	00	5	y	0
+0  		01	00	5	y	0
 1   	02	00	5	y	0
 2   	06	00	5	y	0
 3   	07	00	5	y	0 
