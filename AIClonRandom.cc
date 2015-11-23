@@ -294,13 +294,21 @@ struct PLAYER_NAME : public Player {
 	/// \return devuelve el objetivo seleccionado
 	///
 
-	Target choose_target(const vector<Target> &v, int i) {
+	Target choose_target(const vector<Target> &v, int size) {
 		//TODO implementar choose_target
-		return v[0];
+		int k = -1;
+		int min_j = 0;
+		for(int i = 0; i < size; ++i) {
+			if(k == -1 || second(v[i].n.first) < min_j) {
+				min_j = second(v[i].n.first);
+				k = i;
+			}
+		}
+		return v[k];
 	}
 
 	#define MAX_LEVEL 15
-	#define N_TARGETS 1
+	#define N_TARGETS 2
 
 	//TODO realizar adaptacion alternativa algoritmo dijkstra: busqueda+camino minimo a la vez
 	bool scan_target(const Starship &s, Target &t, CType type) {
@@ -356,7 +364,7 @@ struct PLAYER_NAME : public Player {
 			}
 		}
 		if(i != 0) {
-			t = choose_target(v, i-1);
+			t = choose_target(v, i);
 			t.set_route(visited, t.n);
 			return true;
 		} else {
@@ -449,6 +457,8 @@ struct PLAYER_NAME : public Player {
 		targets[s.sid].route.push(s.pos+d);
 	}
 
+	#define SIMULATE_STARSHIPS true
+
 	void check_safe(const Starship &s) {
 		int border = 2;
 		Dir aux = {0, 2};
@@ -468,7 +478,7 @@ struct PLAYER_NAME : public Player {
 		}
 		//cerr << "inicio de la simulacion, estado inicio de ronda:" << endl;
 		//print_simulation(simulation);
-		simulation.run(false, all_dirs);
+		simulation.run(SIMULATE_STARSHIPS, all_dirs);
 		Cell c = simulation.get_cell(targets[s.sid].route.top());
 		if(c.type == ASTEROID) {
 			Cell aux_c;

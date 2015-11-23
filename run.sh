@@ -4,15 +4,15 @@
 set -e
 
 # Take an optional argument: the basename of the game file.
-game="jutge"          # default game
+game="maze3"          # default game
 if [ "$#" -ge 1 ]; then
   game=$1
 fi
 
 Player1=ClonRandom
-Player2=ClonRandom
-Player3=ClonRandom
-Player4=ClonRandom
+Player2=Dummy
+Player3=Dummy
+Player4=Dummy
 
 VIEWER_PATH=Viewer
 
