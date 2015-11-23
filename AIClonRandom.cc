@@ -524,7 +524,6 @@ struct PLAYER_NAME : public Player {
 			targets = Targets(number_starships_per_player(), begin(me()));
 		}
 		for(Starship_Id id = begin(me()); id != end(me()); ++id) {
-			if(round() < 5) shoot(id);
 			Starship s = starship(id);
 			if(s.alive) {
 				//cerr << "Turno de starship " << id << endl;

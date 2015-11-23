@@ -4,7 +4,7 @@
 set -e
 
 # Take an optional argument: the basename of the game file.
-game="maze3"          # default game
+game="jutge"          # default game
 if [ "$#" -ge 1 ]; then
   game=$1
 fi
