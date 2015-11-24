@@ -249,9 +249,19 @@ public:
    */
   double status(Player_Id p) const;
 
+  
+  /**
+   * Returns random number.
+   */
+  int randomize(void);
 
+  
+  /**
+   * Returns a random number between l and u.  
+   */
+  int randomize(int l, int u);
 
-
+  
   /****************************************************/
   /***************** STOP READING HERE ****************/
   /****************************************************/
@@ -263,6 +273,7 @@ private:
   friend class Game;
   friend class SecGame;
 
+  Random_generator rgen;
 
   // Game settings
   int nb_players;
@@ -320,7 +331,7 @@ private:
    * Computes the next board after applying the given actions to the
    * current board. It also returns the actual actions performed.
    */
-  Board next(const vector<Action>& asked, vector<Action>& done) const;
+  Board next(const vector<Action>& asked, vector<Action>& done);
 
   /**
    * Applies an instruction.
@@ -390,7 +401,15 @@ private:
    * Asserts invariants of the board. For debugging.
    */
   bool ok() const;
+  
+  // Returns a random permutation of {0, 1, ..., n-1}.
+  vector<int> random_permutation(int n);
 
+  /**
+   * Sets random seed.
+   */
+  void srandomize(int s);
+  
 
   /**
    * Returns a reference to the current cpu status of a player.
@@ -414,7 +433,7 @@ private:
     if (j < 0) j += nb_uni_cols;
     return j;
   }
-  
+
 };
 
 
@@ -584,6 +603,25 @@ inline bool Board::apply(const Instruction& ins) {
 inline Missile_Id Board::new_missile_identifier() const {
   static int cnt = 0;
   return cnt++;
+}
+
+inline vector<int> Board::random_permutation(int n) {
+  vector<int> v(n);
+  for (int i = 0; i < n; ++i) v[i] = i;
+  for (int i = 0; i < n; ++i) swap(v[i], v[randomize(i, n-1)]);
+  return v;
+}
+
+inline int Board::randomize(void) {
+  return rgen.randomize();
+}
+
+inline int Board::randomize(int l, int u) {
+  return rgen.randomize(l, u);
+}
+
+inline void Board::srandomize(int s) {
+  return rgen.srandomize(s);
 }
 
 #endif // Board_hh

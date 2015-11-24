@@ -391,7 +391,7 @@ struct PLAYER_NAME : public Player {
 				++r;
 			}
 		}
-		if(i != 0) {
+		if(i > 0) {
 			t = choose_target(v, i);
 			t.set_route(visited, t.n);
 			return true;

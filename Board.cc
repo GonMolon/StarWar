@@ -323,7 +323,7 @@ void Board::print_state(ostream& os) const {
 }
 
 
-Board Board::next (const vector<Action>& asked, vector<Action>& done) const {
+Board Board::next (const vector<Action>& asked, vector<Action>& done) {
 
   assert(ok());
 
@@ -539,7 +539,7 @@ bool Board::regenerate_starship(Starship& s) {
 
 
 bool Board::random_empty_position(Pos up_left, Pos down_right, int n, const set<CType>& s, Pos& p) {
-  constexpr int MAX_ATTEMPS = 20;
+  const int MAX_ATTEMPS = 20;
   for (int k = 0; k < MAX_ATTEMPS; ++k) {
     int i = randomize( first(up_left),  first(down_right));
     int j = randomize(second(up_left), second(down_right));

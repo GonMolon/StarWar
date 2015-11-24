@@ -5,11 +5,14 @@
 using namespace std;
 
 
-void Game::run (vector<string> names, istream& is, ostream& os) {
+void Game::run (vector<string> names, istream& is, ostream& os, int seed) {
+
   cerr << "info: loading game" << endl;
   Board b0(is);
   cerr << "info: loaded game" << endl;
 
+  b0.srandomize(seed);
+  
   if (int(names.size()) != b0.number_players()) {
     cerr << "fatal: wrong number of players." << endl;
     exit(EXIT_FAILURE);
@@ -20,6 +23,7 @@ void Game::run (vector<string> names, istream& is, ostream& os) {
     string name = names[player];
     cerr << "info: loading player " << name << endl;
     players.push_back(Registry::new_player(name));
+    players[player]->srandomize(seed + player);
     b0.names[player] = name;
   }
   cerr << "info: players loaded" << endl;
@@ -34,7 +38,9 @@ void Game::run (vector<string> names, istream& is, ostream& os) {
     for (int player = 0; player < b0.number_players(); ++player) {
       cerr << "info:     start player " << player << endl;
       Action a;
+      int s = players[player]->randomize();
       players[player]->reset(player, b0, a);
+      players[player]->srandomize(s);
       players[player]->play();
       asked.push_back(*players[player]);
 
@@ -55,6 +61,7 @@ void Game::run (vector<string> names, istream& is, ostream& os) {
     os << endl;
 
     b1.print_state(os);
+    b1.srandomize(b0.randomize());
     b0 = b1;
     cerr << "info: end round " << round << endl;
   }

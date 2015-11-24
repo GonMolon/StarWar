@@ -17,7 +17,7 @@ class Game {
 
 public:
 
-    static void run (vector<string> names, istream& is, ostream& os);
+    static void run (vector<string> names, istream& is, ostream& os, int seed);
 
 };
 

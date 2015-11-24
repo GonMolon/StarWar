@@ -2,8 +2,6 @@
 
 using namespace std;
 
-Random_generator random_generator;
-
 const map<Dir, vector<Dir>, Cmp> dir2all = {
   {   { 1, 1},        {  { 0, 1}, { 1, 0},                   { 1, 1} }  },
   {   {-1, 1},        {  { 0, 1}, {-1, 0},                   {-1, 1} }  },

@@ -16,7 +16,7 @@ void help (int argc, char** argv) {
   cout << "--output=file         -o output    set output file (default: stdout)" << endl;
   cout << "--list                -l           list registered players"           << endl;
   cout << "--version             -v           print version"                     << endl;
-  cout << "--help                -h           print help"                        << endl;   
+  cout << "--help                -h           print help"                        << endl;
 }
 
 
@@ -62,7 +62,7 @@ int main (int argc, char** argv) {
         switch (c) {
 
             case 's':
-                seed = stoi(optarg);
+                seed = atoi(optarg);
                 break;
 
             case 'i':
@@ -93,13 +93,12 @@ int main (int argc, char** argv) {
         names.push_back(argv[optind++]);
     }
 
-    if (seed < 0) seed = -seed;    
-    random_generator.srandomize(seed);
+    if (seed < 0) seed = -seed;
 
     istream* is = ifile ? new ifstream(ifile) : &cin ;
     ostream* os = ofile ? new ofstream(ofile) : &cout;
-        
-    Game::run(names, *is, *os);
+
+    Game::run(names, *is, *os, seed);
 
     if (ifile) delete is;
     if (ofile) delete os;
