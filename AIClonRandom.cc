@@ -113,7 +113,6 @@ struct PLAYER_NAME : public Player {
 			} else {
 				n = 3;
 			}
-			//cerr << ref << endl;
 			stage = Stage(n, vector<Cell>(second(from-ref)+1+border));
 		}
 
@@ -136,8 +135,8 @@ struct PLAYER_NAME : public Player {
 				}
 			}
 			if(strict) {
-				for(int i = 0; i < stage.size(); ++i) {
-					for(int j = stage[0].size()-1; j >= 0; --j) {
+				for(int j = stage[0].size()-1; j >= 0; --j) {
+					for(int i = 0; i < stage.size(); ++i) {
 						if(stage[i][j].type == STARSHIP && stage[i][j].sid == -1) {
 							for(int d = 0; d < all_dirs.size(); ++d) {
 								pair<int, int> ij;
@@ -181,12 +180,16 @@ struct PLAYER_NAME : public Player {
 			return DEFAULT;
 		}
 
-		void add_starship(Starship_Id id, const Pos& p) {
+		void add_starship(Starship_Id id, Pos p) {
+			Pos aux = ref;
+			ref = {first(ref), second(ref)%m};
+			p = {first(p), second(p)%m};
 			pair<int, int> ij = get_ij(p);
 			if(affects(ij)) {
 				stage[ij.first][ij.second].type = STARSHIP;
 				stage[ij.first][ij.second].sid = id;
 			}
+			ref = aux;
 		}
 
 		void set_cell(const Pos &p, const Cell &c) {
@@ -247,17 +250,22 @@ struct PLAYER_NAME : public Player {
 		}
 	};
 
-	void load_simulation(Simulation &s) {
+	void load_simulation(Starship_Id id, Simulation &simulation) {
 		Dir d;
-		for(int i = 0; i < s.stage.size(); ++i) {
-			for(int j = 0; j < s.stage[0].size(); ++j) {
+		for(int i = 0; i < simulation.stage.size(); ++i) {
+			for(int j = 0; j < simulation.stage[0].size(); ++j) {
 				d = {i, j};
-				s.stage[i][j] = cell(s.ref+d);
-				if(s.stage[i][j].type == STARSHIP) {
-					if(player_of(s.stage[i][j].sid) != me()) {
-						s.stage[i][j].sid = -1;
+				simulation.stage[i][j] = cell(simulation.ref+d);
+				if(simulation.stage[i][j].type == STARSHIP) {
+					if(player_of(simulation.stage[i][j].sid) != me()) {
+						simulation.stage[i][j].sid = -1;
 					}
 				}
+			}
+		}
+		for(Starship_Id id_aux = begin(me()); id_aux != end(me()); ++id_aux) {
+			if(id_aux != id && targets[id_aux].ok) {
+				simulation.add_starship(id_aux, targets[id_aux].next_pos);
 			}
 		}
 	}
@@ -457,7 +465,7 @@ struct PLAYER_NAME : public Player {
 		targets[s.sid].route.push(s.pos+d);
 	}
 
-	#define SIMULATE_STARSHIPS true
+	#define SIMULATE_STARSHIPS false
 
 	void check_safe(const Starship &s) {
 		int border = 2;
@@ -470,12 +478,7 @@ struct PLAYER_NAME : public Player {
 			}
 		}
 		Simulation simulation = Simulation(s.pos, targets[s.sid].route.top(), number_rows(), number_universe_columns(), border);
-		load_simulation(simulation);
-		for(Starship_Id id = begin(me()); id != end(me()); ++id) {
-			if(id != s.sid && targets[id].ok) {
-				simulation.add_starship(id, targets[id].next_pos);
-			}
-		}
+		load_simulation(s.sid, simulation);
 		//cerr << "inicio de la simulacion, estado inicio de ronda:" << endl;
 		//print_simulation(simulation);
 		simulation.run(SIMULATE_STARSHIPS, all_dirs);
@@ -537,6 +540,8 @@ struct PLAYER_NAME : public Player {
 			Starship s = starship(id);
 			if(s.alive) {
 				//cerr << "Turno de starship " << id << endl;
+				//cerr << "Pos: ";
+				//print_pos(s.pos);
 				if(targets[id].route.empty()) {
 					//cerr << "No tiene ruta" << endl;
 					targets[id].ok = false;
@@ -559,7 +564,6 @@ struct PLAYER_NAME : public Player {
 				targets[id].ok = false;
 			}
 		}
-		//while(round() == 159);
 		//TODO implementar update enemigos
 	}
 };
