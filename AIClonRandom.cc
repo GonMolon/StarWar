@@ -13,6 +13,8 @@ struct PLAYER_NAME : public Player {
 		return new PLAYER_NAME;
 	}
 
+	int m;
+
 	struct Data_pos {
 		Pos prev;
 		int m;
@@ -32,13 +34,21 @@ struct PLAYER_NAME : public Player {
 
 	typedef map<Pos, Data_pos, compare> Nodos;
 
+	enum TARGET_TYPE{
+		POINTS,
+		MISSILES,
+		ANY,
+		ENEMY,
+		POSITION
+	};
+
 	struct Target {
 		Nodo n;
 		stack<Pos> route;
 		int missiles_nec;
 		int rounds_nec;
 		bool ok;
-		CType type;
+		TARGET_TYPE type;
 		Pos next_pos;
 
 		void set_route(Nodos &nodos, const Nodo &n) {
@@ -315,11 +325,26 @@ struct PLAYER_NAME : public Player {
 		return v[k];
 	}
 
+	bool is_target(const Target &t, const Pos &p) {
+		if(t.type == POSITION && t.n.first == p) {
+			return true;
+		} else if(t.type == POINTS && cell(p).type == POINT_BONUS) {
+			return true;
+		} else if(t.type == MISSILES && cell(p).type == MISSILE_BONUS) {
+			return true;
+		} else if(t.type == ANY && (cell(p).type == MISSILE_BONUS || cell(p).type == POINT_BONUS)) {
+			return true;
+		} else if(t.type == ENEMY && cell(p).type == ENEMY) {
+			return true;
+		}
+		return false;
+	}
+
 	#define MAX_LEVEL 15
 	#define N_TARGETS 2
 
 	//TODO realizar adaptacion alternativa algoritmo dijkstra: busqueda+camino minimo a la vez
-	bool scan_target(const Starship &s, Target &t, CType type) {
+	bool scan_target(const Starship &s, Target &t) {
 		t.route = stack<Pos>();
 		vector<Target> v = vector<Target>(N_TARGETS);
 		Nodos visited = Nodos();
@@ -337,17 +362,12 @@ struct PLAYER_NAME : public Player {
 		Nodo act;
 		while(!q.empty() && i < N_TARGETS) { //&& r <= MAX_LEVEL) {
 			act = q.front();
-			if(cell(act.first).type == type) {
+			if(is_target(t, act.first)) {
 				if(targets.avaliable(s.sid, act.first)) {
 					v[i].n = act;
 					v[i].rounds_nec = r;
-					v[i].type = type;
 					v[i].missiles_nec = s.nb_miss-act.second.m;
 					++i;
-				} else {
-					//cerr << "Objetivo en pos ";
-					//print_pos(act.first);
-					//cerr << "adjudicado a otra nave" << endl;
 				}
 			}
 			for(int j = 0; j < all_dirs.size(); ++j) {
@@ -381,7 +401,7 @@ struct PLAYER_NAME : public Player {
 	}
 
 	void print_pos(const Pos &p) {
-		//cerr << '(' << first(p) << ',' << second(p)%number_universe_columns() << ')' << endl;
+		//cerr << '(' << first(p) << ',' << second(p)%m << ')' << endl;
 	}
 
 	void print_route(const Starship &s) {
@@ -477,7 +497,7 @@ struct PLAYER_NAME : public Player {
 				--border;
 			}
 		}
-		Simulation simulation = Simulation(s.pos, targets[s.sid].route.top(), number_rows(), number_universe_columns(), border);
+		Simulation simulation = Simulation(s.pos, targets[s.sid].route.top(), number_rows(), m, border);
 		load_simulation(s.sid, simulation);
 		//cerr << "inicio de la simulacion, estado inicio de ronda:" << endl;
 		//print_simulation(simulation);
@@ -507,11 +527,13 @@ struct PLAYER_NAME : public Player {
 
 	void refresh_target(const Starship &s) {
 		if(!targets[s.sid].ok || cell(targets[s.sid].n.first).type != targets[s.sid].type) {
-			CType type = POINT_BONUS;
+			TARGET_TYPE type = POINTS;
 			if(s.nb_miss < MIN_MISSILES) {
-				type = MISSILE_BONUS;
+				type = MISSILES;
 			}
-			targets[s.sid].ok = scan_target(s, targets[s.sid], type);
+			//TODO situarse mitad pantalla cuando esta muy adelante.
+			targets[s.sid].type = type;
+			targets[s.sid].ok = scan_target(s, targets[s.sid]);
 			if(targets[s.sid].ok == true) {
 				//cerr << "Se le adjudica objetivo: " << targets[s.sid].type << " en ";
 				//print_pos(targets[s.sid].n.first);
@@ -533,6 +555,7 @@ struct PLAYER_NAME : public Player {
 		//cerr << "---------------------------" << endl;
 		//cerr << "RONDA " << round() << endl;
 		if(round() == 0) {
+			m = number_universe_columns();
 			all_dirs = {FAST, FAST_UP, FAST_DOWN, DEFAULT, UP, DOWN, SLOW, SLOW_UP, SLOW_DOWN};
 			targets = Targets(number_starships_per_player(), begin(me()));
 		}
