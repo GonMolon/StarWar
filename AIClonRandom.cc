@@ -5,7 +5,7 @@
 
 using namespace std;
 
-#define PLAYER_NAME ClonRandom00
+#define PLAYER_NAME ClonRandom
 
 struct PLAYER_NAME : public Player {
 
@@ -109,30 +109,30 @@ struct PLAYER_NAME : public Player {
 
 		Simulation() {}
 
-		Simulation(Pos from, Pos to, int n_universe, int m_universe, int border) {
+		Simulation(Pos from, Pos to, int n_universe, int m_universe, bool strict, int border) {
 			this->m_universe = m_universe;
+			this->strict = strict;
 			reduce_pos(from);
 			reduce_pos(to);
-			int i = first(from)-1;
+			int n = 5;
+			int i = first(from)-2;
 			int j = second(to)-4;
 			if(i < 0) {
+				n = n+i;
 				i = 0;
 			}
 			ref = {i, j};
 			reduce_pos(ref);
-			int n, m;
-			if(first(from) == n_universe-1 || first(from) == 0) {
-				n = 2;
-			} else {
-				n = 3;
+			while(first(from)-2+n > n_universe) {
+				--n;
 			}
 			Pos aux = from-ref;
 			reduce_pos(aux);
-			m = second(aux)+border+1;
+			int m = second(aux)+border+1;
 			stage = Stage(n, vector<Cell>(m));
 		}
 
-		void run(bool strict, const vector<Dir> &all_dirs) {
+		void run(const vector<Dir> &all_dirs) {
 			for(int i = 0; i < stage.size(); ++i) {
 				for(int j = stage[0].size()-1; j >= 0; --j) {
 					if(stage[i][j].type == MISSILE) {
@@ -154,13 +154,24 @@ struct PLAYER_NAME : public Player {
 				for(int j = stage[0].size()-1; j >= 0; --j) {
 					for(int i = 0; i < stage.size(); ++i) {
 						if(stage[i][j].type == STARSHIP && stage[i][j].sid == -1) {
+							stack<pair<pair<int, int>, Cell> > cells = stack<pair<pair<int, int>, Cell> >();
 							for(int d = 0; d < all_dirs.size(); ++d) {
-								pair<int, int> ij;
-								ij.first = i+first(all_dirs[d]);
-								ij.second = j+second(all_dirs[d]);
-								if(affects(ij) && stage[ij.first][ij.second].type == EMPTY) {
-									stage[ij.first][ij.second] = stage[i][j];
+								pair<int, int> ij = {i, j};
+								if(check_movement(ij, all_dirs[d])) {
+									ij.first += first(all_dirs[d]);
+									ij.second += second(all_dirs[d]);
+									if(affects(ij)) {
+										pair<pair<int, int>, Cell> new_pos;
+										new_pos.first = ij;
+										new_pos.second = stage[i][j];
+										new_pos.second.sid = -2,
+										cells.push(new_pos);
+									}
 								}
+							}
+							while(!cells.empty()) {
+								stage[cells.top().first.first][cells.top().first.second] = cells.top().second;
+								cells.pop();
 							}
 						}
 					}
@@ -170,7 +181,8 @@ struct PLAYER_NAME : public Player {
 
 		bool can_move(Pos p, Dir d) const {
 			reduce_pos(p);
-			if(!check_movement(p, d)) {
+			pair<int, int> ij = get_ij(p);
+			if(!check_movement(ij, d)) {
 				return false;
 			}
 			p = p+d;
@@ -179,7 +191,7 @@ struct PLAYER_NAME : public Player {
 				pair<int, int> ij = get_ij(p+d);
 				if(affects(ij)) {
 					Cell c = stage[ij.first][ij.second];
-					if(c.type == MISSILE || (c.type == STARSHIP && c.sid == -1)) {
+					if(c.type == MISSILE || (c.type == STARSHIP && (c.sid == -1 || (c.sid < 0 && strict)))) {
 						return false;
 					}
 				}
@@ -230,6 +242,7 @@ struct PLAYER_NAME : public Player {
 
 	private:
 		int m_universe;
+		bool strict;
 
 		void reduce_pos(Pos &p) const {
 			int j = second(p)%m_universe;
@@ -252,8 +265,10 @@ struct PLAYER_NAME : public Player {
 			return ij;
 		}
 
-		bool cell_ok(const Pos &p) const {
-			pair<int, int> ij = get_ij(p);
+		bool cell_ok(pair<int, int> ij, const Dir &d) const {
+			Cell o = stage[ij.first][ij.second];
+			ij.first += first(d);
+			ij.second += second(d);
 			if(affects(ij)) {
 				Cell c = stage[ij.first][ij.second];
 				return c.type != ASTEROID && c.type != MISSILE && c.type != STARSHIP;
@@ -262,19 +277,19 @@ struct PLAYER_NAME : public Player {
 			}
 		}
 
-		bool check_movement(const Pos &p, const Dir &d) const {
-			if(!cell_ok(p+d)) {
+		bool check_movement(const pair<int, int> &ij, const Dir &d) const {
+			if(!cell_ok(ij, d)) {
 				return false;
 			} else if(d == FAST) {
-				return cell_ok(p+DEFAULT);
+				return cell_ok(ij, DEFAULT);
 			} else if(d == FAST_UP) {
-				return check_movement(p, UP) && check_movement(p, FAST);
+				return check_movement(ij, UP) && check_movement(ij, FAST);
 			} else if(d == FAST_DOWN) {
-				return check_movement(p, DOWN) && check_movement(p, FAST);
+				return check_movement(ij, DOWN) && check_movement(ij, FAST);
 			} else if(d == UP) {
-				return cell_ok(p+SLOW_UP) && cell_ok(p+DEFAULT);
+				return cell_ok(ij, SLOW_UP) && cell_ok(ij, DEFAULT);
 			} else if(d == DOWN) {
-				return cell_ok(p+SLOW_DOWN) && cell_ok(p+DEFAULT);
+				return cell_ok(ij, SLOW_DOWN) && cell_ok(ij, DEFAULT);
 			} else {
 				return true;
 			}
@@ -422,13 +437,13 @@ struct PLAYER_NAME : public Player {
 	}
 
 	void print_pos(const Pos &p) {
-		//cerr << '(' << first(p) << ',' << second(p)%m << ')' << endl;
+		cerr << '(' << first(p) << ',' << second(p)%m_universe << ')' << endl;
 	}
 
 	void print_route(const Starship &s) {
 		stack<Pos> pila = targets[s.sid].route;
 		while(!pila.empty()) {
-			//print_pos(pila.top());
+			print_pos(pila.top());
 			pila.pop();
 		}
 	}
@@ -438,26 +453,26 @@ struct PLAYER_NAME : public Player {
 			for(int j = 0; j < s.stage[0].size(); ++j) {
 				Cell c = s.stage[i][j];
 				if(c.type == ASTEROID) {
-					//cerr << 'X';
+					cerr << 'X';
 				} else if(c.type == POINT_BONUS) {
-					//cerr << 'P';
+					cerr << 'P';
 				} else if(c.type == MISSILE_BONUS) {
-					//cerr << 'B';
+					cerr << 'B';
 				} else if(c.type == MISSILE) {
-					//cerr << 'M';
+					cerr << 'M';
 				} else if(c.type == STARSHIP) {
-					if(c.sid != -1) {
-						//cerr << c.sid;
+					if(c.sid < 0) {
+						cerr << 'S';
 					} else {
-						//cerr << 'S';
+						cerr << c.sid;
 					}
 				} else {
-					//cerr << '.';
+					cerr << '.';
 				}
 			}
-			//cerr << endl;
+			cerr << endl;
 		}
-		//cerr << endl;
+		cerr << endl;
 	}
 
 	//TODO estructura de datos para almacenar naves enemigas
@@ -481,12 +496,14 @@ struct PLAYER_NAME : public Player {
 		Dir d;
 		for(int i = 1; i <= 2; ++i) {
 			d = {0, i};
-			if(cell(s.pos+d).sid != -1 && player_of(cell(s.pos+d).sid) == me()) {
+			if(cell(s.pos+d).type == STARSHIP && player_of(cell(s.pos+d).sid) == me()) {
 				if(i == 1) {
 					targets[s.sid].next_pos = s.pos+SLOW;
 				} else {
 					targets[s.sid].next_pos = s.pos+DEFAULT;
 				}
+				while(true);
+				cerr << "HELLOUUUU" << endl;
 				return false;
 			} else if(cell(s.pos+d).type != EMPTY) {
 				shoot(s.sid);
@@ -502,11 +519,11 @@ struct PLAYER_NAME : public Player {
 	void recalculate_route(const Starship &s, const Simulation &simulation) {
 		Dir d = simulation.get_free_dir(s.pos, all_dirs);
 		targets[s.sid].route = stack<Pos>();
-		//cerr << "Se le da la direccion: " << d << endl;
+		cerr << "Se le da la direccion: " << d << endl;
 		targets[s.sid].route.push(s.pos+d);
 	}
 
-	#define SIMULATE_STARSHIPS false
+	#define STRICT true
 
 	void check_safe(const Starship &s) {
 		int border = 2;
@@ -518,29 +535,29 @@ struct PLAYER_NAME : public Player {
 				--border;
 			}
 		}
-		Simulation simulation = Simulation(s.pos, targets[s.sid].route.top(), number_rows(), m_universe, border);
+		Simulation simulation = Simulation(s.pos, targets[s.sid].route.top(), number_rows(), m_universe, STRICT, border);
 		load_simulation(s.sid, simulation);
-		//cerr << "inicio de la simulacion, estado inicio de ronda:" << endl;
-		//print_simulation(simulation);
-		simulation.run(SIMULATE_STARSHIPS, all_dirs);
+		cerr << "inicio de la simulacion, estado inicio de ronda:" << endl;
+		print_simulation(simulation);
+		simulation.run(all_dirs);
 		Cell c = simulation.get_cell(targets[s.sid].route.top());
 		if(c.type == ASTEROID) {
 			Cell aux_c;
 			aux_c.type = EMPTY;
 			simulation.set_cell(targets[s.sid].route.top(), aux_c);
 		}
-		//cerr << "fin de simulacion, resultado justo antes de mover la nave" << endl;
-		//print_simulation(simulation);
+		cerr << "fin de simulacion, resultado justo antes de mover la nave" << endl;
+		print_simulation(simulation);
 		Dir d = get_dir(s.pos, targets[s.sid].route.top());
 		aux = {-1, -1};
 		if(d == aux || !simulation.can_move(s.pos, d)) {
 			if(c.type == ASTEROID) {
 				simulation.set_cell(s.pos+d, c);
 			}
-			//cerr << "Movimiento no seguro, recalcular ruta" << endl;
+			cerr << "Movimiento no seguro, recalcular ruta" << endl;
 			recalculate_route(s, simulation);
 		} else {
-			//cerr << "Movimiento previsto seguro, no hay cambios" << endl;
+			cerr << "Movimiento previsto seguro, no hay cambios" << endl;
 		}
 	}
 
@@ -551,20 +568,20 @@ struct PLAYER_NAME : public Player {
 			TARGET_TYPE type = POINTS;
 			if(s.nb_miss < MIN_MISSILES) {
 				type = MISSILES;
-				//cerr << "tiene que buscar misiles" << endl;
+				cerr << "tiene que buscar misiles" << endl;
 			}
 			//TODO situarse mitad pantalla cuando esta muy adelante.
 			targets[s.sid].type = type;
 			targets[s.sid].ok = scan_target(s, targets[s.sid]);
 			if(targets[s.sid].ok == true) {
-				//cerr << "Se le adjudica objetivo: " << targets[s.sid].type << " en ";
-				//print_pos(targets[s.sid].n.first);
+				cerr << "Se le adjudica objetivo: " << targets[s.sid].type << " en ";
+				print_pos(targets[s.sid].n.first);
 			}
 		}
 		if(!targets[s.sid].ok) {
 			targets[s.sid].route.push(s.pos+DEFAULT);
 			targets[s.sid].ok = true;
-			//cerr << "No se le ha encontrdo objetivo, se le añade dir default" << endl;
+			cerr << "No se le ha encontrdo objetivo, se le añade dir default" << endl;
 		}
 	}
 
@@ -574,8 +591,8 @@ struct PLAYER_NAME : public Player {
 	///
 
 	virtual void play() {
-		//cerr << "---------------------------" << endl;
-		//cerr << "RONDA " << round() << endl;
+		cerr << "---------------------------" << endl;
+		cerr << "RONDA " << round() << endl;
 		if(round() == 0) {
 			m_universe = number_universe_columns();
 			all_dirs = {FAST, FAST_UP, FAST_DOWN, DEFAULT, UP, DOWN, SLOW, SLOW_UP, SLOW_DOWN};
@@ -584,19 +601,19 @@ struct PLAYER_NAME : public Player {
 		for(Starship_Id id = begin(me()); id != end(me()); ++id) {
 			Starship s = starship(id);
 			if(s.alive) {
-				//cerr << "Turno de starship " << id << endl;
-				//cerr << "Pos: ";
-				//print_pos(s.pos);
+				cerr << "Turno de starship " << id << endl;
+				cerr << "Pos: ";
+				print_pos(s.pos);
 				if(targets[id].route.empty()) {
-					//cerr << "No tiene ruta" << endl;
+					cerr << "No tiene ruta" << endl;
 					targets[id].ok = false;
 				}
 
 				refresh_target(s);
 				check_safe(s);
 
-				//cerr << "Su ruta actual es: " << endl;
-				//print_route(s);
+				cerr << "Su ruta actual es: " << endl;
+				print_route(s);
 
 				if(cell(targets[id].route.top()).type == ASTEROID || cell(targets[id].route.top()).type == STARSHIP) {
 					dispara(s);
@@ -609,6 +626,7 @@ struct PLAYER_NAME : public Player {
 				targets[id].ok = false;
 			}
 		}
+		//while(round() == 4);
 		//TODO implementar update enemigos
 	}
 };
