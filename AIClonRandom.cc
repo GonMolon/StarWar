@@ -334,7 +334,7 @@ struct PLAYER_NAME : public Player {
 			return true;
 		} else if(t.type == ANY && (cell(p).type == MISSILE_BONUS || cell(p).type == POINT_BONUS)) {
 			return true;
-		} else if(t.type == ENEMY && cell(p).type == ENEMY) {
+		} else if(t.type == ENEMY && cell(p).type == STARSHIP) {
 			return true;
 		}
 		return false;
