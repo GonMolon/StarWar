@@ -10,9 +10,9 @@ if [ "$#" -ge 1 ]; then
 fi
 
 Player1=ClonRandom
-Player2=ClonRandom1
-Player3=ClonRandom1
-Player4=ClonRandom1
+Player2=Dummy
+Player3=Dummy
+Player4=Dummy
 
 VIEWER_PATH=Viewer
 

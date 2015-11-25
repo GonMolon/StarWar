@@ -342,14 +342,8 @@ struct PLAYER_NAME : public Player {
 		}
 	}
 
-	///
-	/// \brief choose_target sirve para escoger un objetivo y un recorrido para
-	/// \param s
-	/// \return devuelve el objetivo seleccionado
-	///
-
 	Target choose_target(const vector<Target> &v, int size) {
-		//TODO implementar choose_target
+		//TODO escoger el target que tenga otro target del mismo tipo en menos de n (pequeña) num de rondas desde ahi.
 		int k = -1;
 		int min_j = 0;
 		for(int i = 0; i < size; ++i) {
@@ -494,16 +488,14 @@ struct PLAYER_NAME : public Player {
 
 	bool dispara(const Starship &s) {
 		Dir d;
-		for(int i = 1; i <= 2; ++i) {
-			d = {0, i};
+		for(int j = 1; j <= 2; ++j) {
+			d = {0, j};
 			if(cell(s.pos+d).type == STARSHIP && player_of(cell(s.pos+d).sid) == me()) {
-				if(i == 1) {
+				if(j == 1) {
 					targets[s.sid].next_pos = s.pos+SLOW;
 				} else {
 					targets[s.sid].next_pos = s.pos+DEFAULT;
 				}
-				while(true);
-				cerr << "HELLOUUUU" << endl;
 				return false;
 			} else if(cell(s.pos+d).type != EMPTY) {
 				shoot(s.sid);
@@ -571,6 +563,7 @@ struct PLAYER_NAME : public Player {
 				cerr << "tiene que buscar misiles" << endl;
 			}
 			//TODO situarse mitad pantalla cuando esta muy adelante.
+			//if(s.pos >= round())
 			targets[s.sid].type = type;
 			targets[s.sid].ok = scan_target(s, targets[s.sid]);
 			if(targets[s.sid].ok == true) {
@@ -617,6 +610,8 @@ struct PLAYER_NAME : public Player {
 
 				if(cell(targets[id].route.top()).type == ASTEROID || cell(targets[id].route.top()).type == STARSHIP) {
 					dispara(s);
+				} else if(false) {
+					//SI UNA NAVE ENEMIGA ES ALCANZABLE, DISPARA.
 				} else {
 					move(id, get_dir(s.pos, targets[id].route.top()));
 				}
