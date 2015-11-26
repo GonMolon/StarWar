@@ -16,6 +16,6 @@ Player4=Dummy
 
 VIEWER_PATH=Viewer
 
-./Game $Player1 $Player2 $Player3 $Player4 -s 586945 < ${game}.cnf > $VIEWER_PATH/${game}.res
+./Game $Player1 $Player2 $Player3 $Player4 -s 22343 < ${game}.cnf > $VIEWER_PATH/${game}.res
 
 start firefox "file:///C:/Users/Gonzalo/Documents/Programacion/C++_Workspace_Qt-Creator/StarWar/$VIEWER_PATH/viewer.html?game=${game}.res"
