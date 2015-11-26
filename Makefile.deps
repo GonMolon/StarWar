@@ -3,6 +3,8 @@ AIClonRandom.o: AIClonRandom.cc Player.hh Utils.hh Board.hh Action.hh \
  Registry.hh
 AIClonRandom1.o: AIClonRandom1.cc Player.hh Utils.hh Board.hh Action.hh \
  Registry.hh
+AIClonRandom2.o: AIClonRandom2.cc Player.hh Utils.hh Board.hh Action.hh \
+ Registry.hh
 AIDemo.o: AIDemo.cc Player.hh Utils.hh Board.hh Action.hh Registry.hh
 AINull.o: AINull.cc Player.hh Utils.hh Board.hh Action.hh Registry.hh
 Board.o: Board.cc Board.hh Utils.hh Action.hh
