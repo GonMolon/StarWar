@@ -10,7 +10,7 @@ if [ "$#" -ge 1 ]; then
 fi
 
 Player1=ClonRandom
-Player2=Dummy
+Player2=ClonRandom1
 Player3=Dummy
 Player4=Dummy
 

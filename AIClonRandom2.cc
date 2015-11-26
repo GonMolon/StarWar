@@ -5,7 +5,7 @@
 
 using namespace std;
 
-#define PLAYER_NAME ClonRandom
+#define PLAYER_NAME ClonRandom2
 
 struct PLAYER_NAME : public Player {
 
