@@ -56,7 +56,6 @@ struct PLAYER_NAME : public Player {
 		Nodo n;
 		stack<Pos> route;
 		int missiles_nec;
-		int rounds_nec;
 		bool ok;
 		TARGET_TYPE type;
 		Pos next_pos;
@@ -200,13 +199,14 @@ struct PLAYER_NAME : public Player {
 				return false;
 			}
 			p = p+d;
+			//cerr << d << endl;
 			for(int j = -2; j < 0; ++j) {
-				d = {0, j};
-				pair<int, int> ij = get_ij(p+d);
+				Dir aux = {0, j};
+				pair<int, int> ij = get_ij(p+aux);
 				if(affects(ij)) {
 					Cell c = stage[ij.first][ij.second];
 					if(c.type == MISSILE || (c.type == STARSHIP && (c.sid == -1 || (c.sid == -2 && strict)) && c.mid > 0)) {
-						if(j == -1 || stage[ij.first][ij.second+1].type == EMPTY || stage[ij.first][ij.second+1].type == STARSHIP) {
+						if(j == -1 || (stage[ij.first][ij.second+1].type == EMPTY || (d != SLOW_UP && d != SLOW_UP)) || stage[ij.first][ij.second+1].type == STARSHIP) {
 							return false;
 						}
 					}
@@ -444,7 +444,6 @@ struct PLAYER_NAME : public Player {
 			if(is_target(t, cell(act.first).type)) {
 				if(targets.avaliable(s.sid, act.first)) {
 					v[i].n = act;
-					v[i].rounds_nec = r;
 					v[i].missiles_nec = s.nb_miss-act.second.missiles;
 					++i;
 				}
@@ -539,26 +538,17 @@ struct PLAYER_NAME : public Player {
 		return INVALID_DIR;
 	}
 
-	bool dispara(const Starship &s) {
-		Dir d;
-		for(int j = 1; j <= 2; ++j) {
-			d = {0, j};
-			if(cell(s.pos+d).type == STARSHIP && player_of(cell(s.pos+d).sid) == me()) {
-				if(j == 1) {
-					targets[s.sid].next_pos = s.pos+SLOW;
-				} else {
-					targets[s.sid].next_pos = s.pos+DEFAULT;
-				}
-				return false;
-			} else if(cell(s.pos+d).type != EMPTY) {
-				shoot(s.sid);
-				targets[s.sid].next_pos = s.pos+DEFAULT;
-				return true;
-			}
+	inline bool is_enemy(const Pos &p) {
+		Cell c = cell(p);
+		if(c.type != STARSHIP) {
+			return false;
+		} else {
+			return c.sid < begin(me()) || c.sid >= end(me());
 		}
-		shoot(s.sid);
-		targets[s.sid].next_pos = s.pos+DEFAULT;
-		return true;
+	}
+
+	inline bool shoot_enemy(const Starship &s) {
+		return simulation.can_move(s.pos, DEFAULT, s.nb_miss > 0) && s.nb_miss > 0 && (is_enemy(s.pos+DEFAULT) || (cell(s.pos+DEFAULT).type == EMPTY && is_enemy(s.pos+FAST)));
 	}
 
 	void recalculate_route(const Starship &s) {
@@ -582,7 +572,7 @@ struct PLAYER_NAME : public Player {
 	}
 
 	void refresh_target(const Starship &s) {
-		if(!targets[s.sid].ok || !is_target(targets[s.sid], cell(targets[s.sid].n.first).type) || get_dir(s.pos, targets[s.sid].route.top()) == INVALID_DIR) {
+		if(!targets[s.sid].ok || !is_target(targets[s.sid], cell(targets[s.sid].n.first).type) || get_dir(s.pos, targets[s.sid].route.top()) == INVALID_DIR || s.nb_miss < targets[s.sid].missiles_nec) {
 			TARGET_TYPE type = POINTS;
 			if(s.nb_miss < MIN_MISSILES) {
 				type = MISSILES;
@@ -637,20 +627,20 @@ struct PLAYER_NAME : public Player {
 				//cerr << "Su ruta actual es: " << endl;
 				//print_route(s);
 
-				if(false) {
-				} else if (cell(targets[id].route.top()).type == ASTEROID || cell(targets[id].route.top()).type == STARSHIP) {
-					dispara(s);
+				if(shoot_enemy(s) || cell(targets[id].route.top()).type == ASTEROID) {
+					shoot(id);
+					targets[s.sid].next_pos = s.pos+DEFAULT;
 				} else {
 					move(id, get_dir(s.pos, targets[id].route.top()));
+					targets[id].next_pos = targets[id].route.top();
 				}
-				targets[id].next_pos = targets[id].route.top();
 				targets[id].route.pop();
 			} else {
-				//while(true);
+				while(true);
 				targets[id].ok = false;
 			}
 		}
-	}
+	} //113, 611
 };
 
 RegisterPlayer(PLAYER_NAME);
