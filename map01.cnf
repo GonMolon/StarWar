@@ -1,0 +1,64 @@
+starwar       	  v1
+secgame            ?
+seed               ?
+nb_players    	   4
+nb_rnds       	 500
+nb_rows       	  20
+nb_uni_cols   	 100
+nb_win_cols   	  50
+nb_ships_x_player  2
+nb_rnds_regen 	  10
+nb_miss_bonuses   28
+nb_point_bonuses 135
+bonus_miss         2
+bonus_pnts        10
+kill_pnts         30
+names             ? ? ? ?
+
+rnd 0
+
+   0000000000111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999
+   0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+00 ............................X......PM.........P..........MXXX......PP.........P...XXX.......X......P
+01 ...........................X.......MPXX......X............XXX......PP.......X.M...XXX.......X......P
+02 XXXXXXXXXX...X......PPPX.....X...............X..PX.......XXXX.................P...XXX.......XXXX...X
+03 ......XXXXX..X......PMMX....X.......X........X..P....X...PXXX.....XXXX......X.M...XXX...M...X......X
+04 .......XXXXX.P.X.M.XPMPX...X.......XP........X............XX......P.XXX.......P...XXX.......XXXXXXXX
+05 ........XXXXXXXXXXXXXXXX.....X......X.........P..........XXX.....PXXXX......X.M...XXX.......X......X
+06 ........P......P......P.....X......XM........X............XX....P.............P...XXX.......XXXX...X
+07 ........XXXXXXXXXXXXXXXX...X........X........X............XX..PP............X.M...XXX...M...X......X
+08 .......XXXX.P.P.P.P.P.P.....PX............XPPX..MXXX......X..P..P.............P...XXX.......XXXX...X
+09 ......XXXX.P.P.P.P.P.P.P....PX.............XPPX..MXXXXXXXX..P....P..........X.M...XXX.......X......X
+10 XXXXXXXXX.P.P.P.P.P.P.P...PX........X........X............X....X..P...........P...XXX.......XXXXXXXX
+11 ......XXXX.P.P.P.P.P.P.P...PX......XP........X............XX.......P.XXXXXX.X.M...XXX.......X......X
+12 .......XXXX.P.P.P.P.P.P.....PX......X.........PP...PXP....XX....X...P.XXXXX...P...XXX...M...XXXX...X
+13 ........XXXXXXXXXXXXXXXX.....PX...............PP...XPX...XXX.........PXXXXX.X.M...XXX.......X......X
+14 ........P......P......P.....................XX............XX.........XXXXXX...P...XXX.......XXXXXXXX
+15 ........XXXXXXXXXXXXXXXXXXXXXXXXX....PP....X..............XXX...XXX.........X.M...XXX.......X......X
+16 .......XXXXX.....XXXXX..PP.......X...PP...X..P.....M......XXX..PPPP.......X...P...XXX...M...XXXX...X
+17 ......XXXXX...X...XXX...X.XXXXXXX........X..P.P...........XXX..PPPP.........X.M...XXX.......X......X
+18 XXXXXXXXXX...XXX...X...XX.XXXXXXX..PP...X..P...P..........XXX..PPPP.......X...P...XXX.......XXXX...X
+19 ............XXXXX.....XXXM.......X.PP..X..P.....P..M.....MXXX..PPPP.........X.M...XXX.......X......P
+
+
+starships
+sid     row     column  nb_miss alive   time
+0	03	01	2	y	0
+1	13	00	2	y	0
+2	05	00	2	y	0
+3	17	01	2	y	0
+4	07	00	2	y	0
+5	11	01	2	y	0
+6	09	01	2	y	0
+7	15	00	2	y	0
+
+missiles
+0
+mid      sid	row     column
+
+players
+pid	score	status
+0	0	0
+1	0	0
+2	0	0
+3	0	0

@@ -10,12 +10,12 @@ if [ "$#" -ge 1 ]; then
 fi
 
 Player1=ClonRandom
-Player2=Dummy
+Player2=Sanfe
 Player3=Dummy
-Player4=Dummy
+Player4=Sanfe
 
 VIEWER_PATH=Viewer
 
-./Game $Player1 $Player2 $Player3 $Player4 -s 23443 < ${game}.cnf > $VIEWER_PATH/${game}.res
+./Game $Player1 $Player2 $Player3 $Player4 -s 5435 < ${game}.cnf > $VIEWER_PATH/${game}.res
 
 start firefox "file:///C:/Users/Gonzalo/Documents/Programacion/C++_Workspace_Qt-Creator/StarWar/$VIEWER_PATH/viewer.html?game=${game}.res"
