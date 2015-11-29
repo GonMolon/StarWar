@@ -228,13 +228,13 @@ struct PLAYER_NAME : public Player {
 				}
 			}
 			if(strict) {
-				//cerr << "No hay dir libre, se baja el nivel de strict" << endl;
+				cerr << "No hay dir libre, se baja el nivel de strict" << endl;
 				strict = false;
 				Dir d = get_free_dir(from, all_dirs, slow, has_missiles);
 				strict = true;
 				return d;
 			} else {
-				//cerr << "No hay ninguna dir libre, default" << endl;
+				cerr << "No hay ninguna dir libre, default" << endl;
 				return DEFAULT;
 			}
 		}
@@ -357,9 +357,9 @@ struct PLAYER_NAME : public Player {
 				simulation.add_starship(id_aux, targets[id_aux].next_pos);
 			}
 		}
-		//print_simulation(simulation);
+		print_simulation(simulation);
 		simulation.run(all_dirs);
-		//print_simulation(simulation);
+		print_simulation(simulation);
 	}
 
 	vector<Dir> all_dirs;
@@ -393,13 +393,13 @@ struct PLAYER_NAME : public Player {
 		int k = -1;
 		int min_j = 0;
 		for(int i = 0; i < size; ++i) {
-			//cerr << "Target en " << v[i].n.first << endl;
+			cerr << "Target en " << v[i].n.first << endl;
 			if(k == -1 || second(v[i].n.first) < min_j) {
-				//cerr << "es mejor target" << endl;
+				cerr << "es mejor target" << endl;
 				min_j = second(v[i].n.first);
 				k = i;
 			} else {
-				//cerr << "descartado" << endl;
+				cerr << "descartado" << endl;
 			}
 		}
 		return v[k];
@@ -449,15 +449,15 @@ struct PLAYER_NAME : public Player {
 		while(!q.empty() && i < N_TARGETS_BFS && r <= MAX_LEVEL_BFS) {
 			act = q.front();
 			if(is_target(t, cell(act.first).type)) {
-				//cerr << "objetivo encontrado en ";
-				//print_pos(act.first);
+				cerr << "objetivo encontrado en ";
+				print_pos(act.first);
 				if(targets.avaliable(s.sid, act.first)) {
 					v[i].n = act;
 					v[i].missiles_nec = s.nb_miss-act.second.missiles;
 					++i;
-					//cerr << "disponible" << endl;
+					cerr << "disponible" << endl;
 				} else {
-					//cerr << "ya asignado" << endl;
+					cerr << "ya asignado" << endl;
 				}
 			}
 			for(int j = 0; j < (int)all_dirs.size(); ++j) {
@@ -494,13 +494,13 @@ struct PLAYER_NAME : public Player {
 	}
 
 	void print_pos(const Pos &p) {
-		//cerr << '(' << first(p) << ',' << second(p)%m_universe << ')' << endl;
+		cerr << '(' << first(p) << ',' << second(p)%m_universe << ')' << endl;
 	}
 
 	void print_route(const Starship &s) {
 		stack<Pos> pila = targets[s.sid].route;
 		while(!pila.empty()) {
-			//print_pos(pila.top());
+			print_pos(pila.top());
 			pila.pop();
 		}
 	}
@@ -510,28 +510,28 @@ struct PLAYER_NAME : public Player {
 			for(int j = 0; j < (int)s.stage[0].size(); ++j) {
 				Cell c = s.stage[i][j];
 				if(c.type == ASTEROID) {
-					//cerr << 'X';
+					cerr << 'X';
 				} else if(c.type == POINT_BONUS) {
-					//cerr << 'P';
+					cerr << 'P';
 				} else if(c.type == MISSILE_BONUS) {
-					//cerr << 'B';
+					cerr << 'B';
 				} else if(c.type == MISSILE) {
-					//cerr << 'M';
+					cerr << 'M';
 				} else if(c.type == STARSHIP) {
 					if(c.sid == -1) {
-						//cerr << 'S';
+						cerr << 'S';
 					} else if(c.sid <= -2) {
-						//cerr << 's';
+						cerr << 's';
 					} else {
-						//cerr << c.sid;
+						cerr << c.sid;
 					}
 				} else {
-					//cerr << '.';
+					cerr << '.';
 				}
 			}
-			//cerr << endl;
+			cerr << endl;
 		}
-		//cerr << endl;
+		cerr << endl;
 	}
 
 	//TODO estructura de datos para almacenar naves enemigas
@@ -569,10 +569,10 @@ struct PLAYER_NAME : public Player {
 		targets[s.sid].type = ANY;
 		targets[s.sid].ok = scan_target(s, targets[s.sid]);
 		if(!targets[s.sid].ok) {
-			//cerr << "No se ha encontrado ningun objetivo accesible" << endl;
+			cerr << "No se ha encontrado ningun objetivo accesible" << endl;
 			targets[s.sid].reset_route();
 			Dir d = simulation.get_free_dir(s.pos, all_dirs, targets[s.sid].type == REPOSITION, s.nb_miss > 0);
-			//cerr << "Direccion para escapar: " << d << endl;
+			cerr << "Direccion para escapar: " << d << endl;
 			targets[s.sid].route.push(s.pos+d);
 			targets[s.sid].ok = true;
 		}
@@ -581,10 +581,10 @@ struct PLAYER_NAME : public Player {
 	void check_safe(const Starship &s) {
 		Dir d = get_dir(s.pos, targets[s.sid].route.top());
 		if(!simulation.can_move(s.pos, d, s.nb_miss > 0)) {
-			//cerr << "Movimiento no seguro, recalcular ruta" << endl;
+			cerr << "Movimiento no seguro, recalcular ruta" << endl;
 			recalculate_route(s);
 		} else {
-			//cerr << "Movimiento previsto seguro, no hay cambios" << endl;
+			cerr << "Movimiento previsto seguro, no hay cambios" << endl;
 		}
 	}
 
@@ -597,21 +597,21 @@ struct PLAYER_NAME : public Player {
 			if(second(s.pos)%m_universe >= round()%m_universe+number_window_columns()*LIMIT_POS) {
 				type = REPOSITION;
 			}
-			//cerr << "Buscar objetivo: " << type << endl;
+			cerr << "Buscar objetivo: " << type << endl;
 			targets[s.sid].type = type;
 			targets[s.sid].ok = scan_target(s, targets[s.sid]);
 			if(!targets[s.sid].ok) {
 				targets[s.sid].type = ANY;
 				targets[s.sid].ok = scan_target(s, targets[s.sid]);
 			} else {
-				//cerr << "Objetivo encontrado en: ";
-				//print_pos(targets[s.sid].n.first);
+				cerr << "Objetivo encontrado en: ";
+				print_pos(targets[s.sid].n.first);
 			}
 		}
 		if(!targets[s.sid].ok) {
 			targets[s.sid].route.push(s.pos+SLOW);
 			targets[s.sid].ok = true;
-			//cerr << "No se le ha encontrdo objetivo, se le añade dir SLOW" << endl;
+			cerr << "No se le ha encontrdo objetivo, se le añade dir SLOW" << endl;
 		}
 	}
 
@@ -621,9 +621,9 @@ struct PLAYER_NAME : public Player {
 	///
 
 	virtual void play() {
-		//cerr << "-----------------------------" << endl;
-		//cerr << "RONDA " << round() << endl;
-		//cerr << "-----------------------------" << endl;
+		cerr << "-----------------------------" << endl;
+		cerr << "RONDA " << round() << endl;
+		cerr << "-----------------------------" << endl;
 		if(round() == 0) {
 			m_universe = number_universe_columns();
 			all_dirs = {FAST, FAST_UP, FAST_DOWN, DEFAULT, UP, DOWN, SLOW_UP, SLOW_DOWN, SLOW};
@@ -632,11 +632,11 @@ struct PLAYER_NAME : public Player {
 		for(Starship_Id id = begin(me()); id != end(me()); ++id) {
 			const Starship s = starship(id);
 			if(s.alive) {
-				//cerr << "Turno de starship " << id << endl;
-				//cerr << "Pos: ";
-				//print_pos(s.pos);
+				cerr << "Turno de starship " << id << endl;
+				cerr << "Pos: ";
+				print_pos(s.pos);
 				if(targets[id].route.empty()) {
-					//cerr << "No tiene ruta" << endl;
+					cerr << "No tiene ruta" << endl;
 					targets[id].ok = false;
 				}
 
@@ -644,9 +644,9 @@ struct PLAYER_NAME : public Player {
 				refresh_target(s);
 				check_safe(s);
 
-				//cerr << "Su ruta actual es: " << endl;
-				//print_route(s);
-				//cerr << "Dir: " << get_dir(s.pos, targets[id].route.top()) << endl;
+				cerr << "Su ruta actual es: " << endl;
+				print_route(s);
+				cerr << "Dir: " << get_dir(s.pos, targets[id].route.top()) << endl;
 				if(shoot_enemy(s) || cell(targets[id].route.top()).type == ASTEROID) {
 					shoot(id);
 					targets[s.sid].next_pos = s.pos+DEFAULT;
@@ -656,6 +656,7 @@ struct PLAYER_NAME : public Player {
 				}
 				targets[id].route.pop();
 			} else {
+				while(true);
 				targets[id].ok = false;
 			}
 		}
@@ -670,7 +671,6 @@ struct PLAYER_NAME : public Player {
 /// TODO Decidir objetivo en funcion de los que se puedan coger desde ahi (bfs dentro de bfs)
 /// TODO Calcular valor medio + desviacion tipica de la j de las posiciones enemigas para determinar posicion de pantalla.
 /// TODO Mejorar esquive de misiles en situaciones extremas con muchas naves rodeando. (Partida Sanfe).
-///
 ///
 
 RegisterPlayer(PLAYER_NAME);
