@@ -15,7 +15,7 @@ struct PLAYER_NAME : public Player {
 	#define SIMULATION_ON_SCAN true
 	#define LIMIT_POS 0.9 //[0-1] 1 = no limit
 	#define MAX_LEVEL_BFS 30
-	#define N_TARGETS_BFS 4
+	#define N_TARGETS_BFS 1
 
 	static Player* factory () {
 		return new PLAYER_NAME;
@@ -100,7 +100,7 @@ struct PLAYER_NAME : public Player {
 		bool avaliable(Starship_Id id, Pos p) {
 			p = {first(p), second(p)%m_universe};
 			for(int i = 0; i < (int)v.size(); ++i) {
-				if(id-offset != i && v[i].ok && first(v[i].n.first) == first(p) && second(v[i].n.first)%m_universe == second(p)%m_universe) {
+				if(id-offset != i && v[i].ok && v[i].type != ENEMY && first(v[i].n.first) == first(p) && second(v[i].n.first)%m_universe == second(p)%m_universe) {
 					return false;
 				}
 			}
@@ -610,10 +610,12 @@ struct PLAYER_NAME : public Player {
 
 	void refresh_target(const Starship &s) {
 		if(!targets[s.sid].ok || !is_target(targets[s.sid], targets[s.sid].n.first, -1) || get_dir(s.pos, targets[s.sid].route.top()) == INVALID_DIR || s.nb_miss < targets[s.sid].missiles_nec) {
-			TARGET_TYPE type = POINTS;
+			TARGET_TYPE type;
+			type = POINTS;
 			if(s.nb_miss < MIN_MISSILES) {
 				type = MISSILES;
 			}
+
 			if(column_of_window(second(s.pos), round()) > column_of_window(round()+number_window_columns()*LIMIT_POS, round())) {
 					//type = REPOSITION;
 			}
@@ -636,10 +638,7 @@ struct PLAYER_NAME : public Player {
 		}
 	}
 
-	///
-	/// \brief play    asigna un objetivo a cada nave al principio y mueve a cada nave seg?n su objetivo. También actualiza
-	/// la posición de las naves enemigas en función de sus antiguas posiciones para no tener que hacer una b?squeda en cada turno.
-	///
+	bool save_cpu = false;
 
 	virtual void play() {
 		//cerr << "-----------------------------" << endl;
@@ -649,7 +648,12 @@ struct PLAYER_NAME : public Player {
 			m_universe = number_universe_columns();
 			all_dirs = {FAST, FAST_UP, FAST_DOWN, DEFAULT, UP, DOWN, SLOW_UP, SLOW_DOWN, SLOW};
 			targets = Targets(number_starships_per_player(), begin(me()), m_universe);
+		} else {
+			if(!save_cpu && status(me())*number_rounds()/round() > 0.9) {
+				save_cpu = true;
+			}
 		}
+
 		for(Starship_Id id = begin(me()); id != end(me()); ++id) {
 			const Starship s = starship(id);
 			if(s.alive) {
@@ -657,10 +661,9 @@ struct PLAYER_NAME : public Player {
 				//cerr << "Pos: ";
 				//print_pos(s.pos);
 
-				/*
-				 * SI SOBRA CPU, QUE HAGA UN BFS CADA RONDA (si el mapa es pequeño y partida corta)
-				*/
-				//////targets[id].ok = false; //mejores resultados pero mas cpu. solamente usar si sobra
+				if(!save_cpu) {
+					targets[id].ok = false; //mejores resultados pero mas cpu. solamente usar si sobra
+				}
 				if(targets[id].route.empty()) {
 					//cerr << "No tiene ruta" << endl;
 					targets[id].ok = false;
