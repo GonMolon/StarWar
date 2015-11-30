@@ -1,6 +1,6 @@
 starwar	v1
 secgame	1
-seed	411085
+seed	223947
 nb_players	4
 nb_rnds	300
 nb_rows	15
@@ -13,7 +13,7 @@ nb_point_bonuses	10
 bonus_miss	5
 bonus_pnts	10
 kill_pnts	30
-names ClonRandom11 Dummy Dummy Dummy
+names UnClonRandom Dummy Dummy Dummy
 
 
 rnd 0
