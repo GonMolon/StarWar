@@ -1,4 +1,6 @@
 Action.o: Action.cc Action.hh Utils.hh Board.hh
+AIClonRandom-Dijkstra.o: AIClonRandom-Dijkstra.cc Player.hh Utils.hh \
+ Board.hh Action.hh Registry.hh
 AIClonRandom.o: AIClonRandom.cc Player.hh Utils.hh Board.hh Action.hh \
  Registry.hh
 AIClonRandom1.o: AIClonRandom1.cc Player.hh Utils.hh Board.hh Action.hh \
@@ -9,6 +11,8 @@ AIClonRandom3.o: AIClonRandom3.cc Player.hh Utils.hh Board.hh Action.hh \
  Registry.hh
 AIClonRandom4.o: AIClonRandom4.cc Player.hh Utils.hh Board.hh Action.hh \
  Registry.hh
+AIClonRandomBueno.o: AIClonRandomBueno.cc Player.hh Utils.hh Board.hh \
+ Action.hh Registry.hh
 AIDemo.o: AIDemo.cc Player.hh Utils.hh Board.hh Action.hh Registry.hh
 AINull.o: AINull.cc Player.hh Utils.hh Board.hh Action.hh Registry.hh
 Board.o: Board.cc Board.hh Utils.hh Action.hh
