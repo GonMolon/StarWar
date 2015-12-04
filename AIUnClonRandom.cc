@@ -5,7 +5,7 @@
 
 using namespace std;
 
-#define PLAYER_NAME ClonRandom
+#define PLAYER_NAME UnClonRandom
 
 struct PLAYER_NAME : public Player {
 
@@ -13,14 +13,18 @@ struct PLAYER_NAME : public Player {
 	#define STRICT_SIMULATION true
 	#define BIG_SIMULATION true
 	#define SIMULATION_ON_SCAN true
-	#define MAX_LEVEL_BFS 40
-	#define N_TARGETS_BFS 1
+	#define MAX_LEVEL_ENEMY 5
+	#define MAX_LEVEL_ANY 40
+	#define MAX_N_TARGETS 1 //No cambiar
 
 	static Player* factory () {
 		return new PLAYER_NAME;
 	}
 
 	int m_universe;
+
+	int MAX_LEVEL_BFS = MAX_LEVEL_ANY;
+	int N_TARGETS_BFS = MAX_N_TARGETS;
 
 	const Dir INVALID_DIR = {-1, -1};
 
@@ -77,7 +81,7 @@ struct PLAYER_NAME : public Player {
 		}
 
 		void reset_route() {
-			 route = stack<Pos>();
+			route = stack<Pos>();
 		}
 	};
 
@@ -100,7 +104,7 @@ struct PLAYER_NAME : public Player {
 		bool avaliable(Starship_Id id, Pos p) {
 			p = {first(p), second(p)%m_universe};
 			for(int i = 0; i < (int)v.size(); ++i) {
-				if(id-offset != i && v[i].ok && v[i].type != ENEMY && first(v[i].n.first) == first(p) && second(v[i].n.first)%m_universe == second(p)%m_universe) {
+				if(id-offset != i && v[i].ok && first(v[i].n.first) == first(p) && second(v[i].n.first)%m_universe == second(p)%m_universe) {
 					return false;
 				}
 			}
@@ -363,12 +367,12 @@ struct PLAYER_NAME : public Player {
 	vector<Dir> all_dirs;
 
 	inline int column_of_window(int j, int r) {
-			j = j%m_universe;
-			int aux = r%m_universe;
-			if(j < aux) {
-					j += m_universe;
-			}
-			return j-aux;
+		j = j%m_universe;
+		int aux = r%m_universe;
+		if(j < aux) {
+			j += m_universe;
+		}
+		return j-aux;
 	}
 
 	bool cell_ok(const Pos &p) {
@@ -497,11 +501,17 @@ struct PLAYER_NAME : public Player {
 
 	bool get_target(Starship s, Target &t) {
 		t.reset_route();
+		if(t.type == ENEMY) {
+			MAX_LEVEL_BFS = MAX_LEVEL_ENEMY;
+			N_TARGETS_BFS = 1;
+		}
 		Nodos visited = Nodos();
 		if(t.type == ENEMY) {
 			--s.nb_miss;
 		}
 		Nodo n = scan_target(s, t, visited);
+		MAX_LEVEL_BFS = MAX_LEVEL_ANY;
+		N_TARGETS_BFS = MAX_N_TARGETS;
 		Pos not_found = {-1, -1};
 		if(n.first == not_found) {
 			t.ok = false;
@@ -585,10 +595,8 @@ struct PLAYER_NAME : public Player {
 	void refresh_target(const Starship &s) {
 		if(!targets[s.sid].ok || !is_target(targets[s.sid], targets[s.sid].n.first, -1) || get_dir(s.pos, targets[s.sid].route.top()) == INVALID_DIR || s.nb_miss < targets[s.sid].missiles_nec) {
 			TARGET_TYPE type = POINTS;
-			if(number_starships_per_player() > 1 && s.sid == end(me())-1) {
-				if(enemy_reachable(s.pos)) {
-					type = ENEMY;
-				}
+			if(enemy_reachable(s.pos)) {
+				type = ENEMY;
 			}
 			if(s.nb_miss < MIN_MISSILES) {
 				type = MISSILES;

@@ -13,7 +13,8 @@ SOURCES += \
     Player.cc \
     Registry.cc \
     Utils.cc \
-    AIClonRandom.cc
+    AIundummymes.cpp \
+    AIUnClonRandom.cc
 
 include(deployment.pri)
 qtcAddDeployment()

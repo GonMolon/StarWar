@@ -1,0 +1,59 @@
+starwar       	  v1
+secgame            ?
+seed               ?
+nb_players    	   4
+nb_rnds       	 300
+nb_rows       	  15
+nb_uni_cols   	  60
+nb_win_cols   	  31
+nb_ships_x_player  2
+nb_rnds_regen 	  50
+nb_miss_bonuses   6
+nb_point_bonuses  24
+bonus_miss         5
+bonus_pnts        10
+kill_pnts         30
+names             ? ? ? ?
+
+rnd 0
+
+   000000000011111111112222222222333333333344444444445555555555
+   012345678901234567890123456789012345678901234567890123456789
+00 .............X..........XX......P.....P......P....X.........
+01 ......PPPPXPPPPPXPPPP.PPPP.XP..............XPPP...XPP.....XX
+02 ......PX.....P...PXXP.PX.P.X.....XXX......PPPXPPP.XPP.......
+03 ....X.PPPP.X.P.X.PXXP.PPPP............M....XPPP...XX.....XX.
+04 ........XP.X.P.X.PPPP.PXP....M...M...........P....X.........
+05 ......PPPP...P...P..P.P..P....M..MM...M...................XX
+06 ........X......X.....X....X......MM...X..M........XPPP...XX.
+07 .......XXX...MMXMM........X...X..MM..M..M.X.......XPXP......
+08 ....X..........X..........X......MM...X..M........XPPP...XX.
+09 ........P...P.PPPP.PPPP.......M..MM...M...................XX
+10 ........P.X.P.PXXP.PX.P......M...M...........P....X.........
+11 ........P.P.P.PXXP.PPPP...............M....XPPP...XX.....XX.
+12 ....X...PXPXPXPPPP.PXP.....X.....XXX......PPPXPPP.XPP.......
+13 .........P.P..P..P.P..P....XP..............XPPP...XPP.....XX
+14 ...............XXXX.....XX......P.....P......P....X.........
+
+starships
+sid     row     column  nb_miss alive   time
+0	00	00	3	y	0
+1	08	00	3	y	0
+2	02	00	3	y	0 
+3	10	00	3	y	0
+4	04	00	3	y	0 
+5	12	00	3	y	0
+6	06	00	3	y	0
+7	14	00	3	y	0
+
+
+missiles
+0
+mid      sid	row     column
+
+players
+pid	score	status
+0	0	0
+1	0	0
+2	0	0
+3	0	0

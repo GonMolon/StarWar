@@ -1,18 +1,18 @@
-starwar       	  v1
-secgame            ?
-seed               ?
-nb_players    	   4
-nb_rnds       	 500
-nb_rows       	  20
-nb_uni_cols   	 100
-nb_win_cols   	  50
-nb_ships_x_player  2
-nb_rnds_regen 	  10
-nb_miss_bonuses   28
+starwar v1
+secgame ?
+seed ?
+nb_players 4
+nb_rnds 500
+nb_rows 20
+nb_uni_cols 100
+nb_win_cols 50
+nb_ships_x_player 2
+nb_rnds_regen 10
+nb_miss_bonuses 28
 nb_point_bonuses 135
-bonus_miss         2
-bonus_pnts        10
-kill_pnts         30
+bonus_miss 2
+bonus_pnts 10
+kill_pnts 30
 names             ? ? ? ?
 
 rnd 0
